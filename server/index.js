@@ -3,6 +3,7 @@ const app = express();
 const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 const User = require("./models/user.model");
 
 dotenv.config({ path: "./config.env" });
@@ -41,7 +42,11 @@ app.post("/api/login", async (req, res) => {
   });
 
   if (user) {
-    return res.json({ status: "ok", user: true });
+    const token = jwt.sign(
+      { name: user.name, email: user.email },
+      "secret1234"
+    );
+    return res.json({ status: "ok", user: token });
   } else {
     return res.json({ status: "error", user: false });
   }

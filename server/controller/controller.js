@@ -1,32 +1,31 @@
+const { questions, answers } = require("../database/data");
 const Question = require("../models/questionSchema");
+const Result = require("../models/resultSchema");
+
+console.log(questions);
 
 exports.getQuestions = async (req, res) => {
   try {
     const q = await Question.find();
-    res.status(200).json({
-      message: success,
-      data: q,
-    });
+    res.json({ data: q });
   } catch (error) {
-    res.status(404).json({
-      error,
-    });
+    res.json({ error });
   }
 };
 
 exports.insertAllQuestions = async (req, res) => {
   try {
-    res.status(201).json("questions api post");
+    await Question.insertMany({ questions: questions, answers: answers });
+    res.status(201).json({ message: "questions api post" });
   } catch (error) {
-    res.status(404).json({
-      error,
-    });
+    res.status(404).json({ error });
   }
 };
 
 exports.deleteAllQuestions = async (req, res) => {
   try {
-    res.status(204).json("questions api delete");
+    await Question.deleteMany();
+    res.status(204).json({ message: "questions api delete" });
   } catch (error) {
     res.status(404).json({
       error,
@@ -34,14 +33,34 @@ exports.deleteAllQuestions = async (req, res) => {
   }
 };
 
+// RESULTS //
+
 exports.getResult = async (req, res) => {
-  res.json("result api get");
+  try {
+    const r = await Result.find();
+    res.json({ data: r });
+  } catch (error) {
+    res.json({ error });
+  }
 };
 
 exports.storeResult = async (req, res) => {
-  res.json("result api post");
+  try {
+    const { username, result, attempts, points, achieved } = req.body;
+    if (!username && !result) throw new Error("Data incomplete....!");
+
+    Result.create({ username, result, attempts, points, achieved });
+    res.json({ message: "result stored" });
+  } catch (error) {
+    res.json({ error });
+  }
 };
 
 exports.deleteResult = async (req, res) => {
-  res.json("result api delete");
+  try {
+    await Result.deleteMany();
+    res.json({ message: "dropped result database" });
+  } catch (error) {
+    res.json({ error });
+  }
 };
